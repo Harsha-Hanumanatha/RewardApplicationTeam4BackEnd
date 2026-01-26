@@ -1,7 +1,12 @@
 package com.tcs.rewardapplicationsys.entity;
-import com.tcs.rewardapplicationsys.entity.Transaction;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,18 +19,27 @@ import java.util.List;
 public class CreditCard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long cardId;
+    private Integer cardId;
+
     @Column(unique = true, nullable = false)
     private String cardNumber;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "card_id_fk")
-    private List<Transaction> transaction;
+
     private Boolean isCardActive;
     private Double rewardPoints;
+
     @Version
     private Long version;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "card_id_fk") // This is the column name in the DB
-    private List<RedemptionHistory> redemptionHistory = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "cust_id_fk")
+    @JsonBackReference
+    private Customer customer;
+
+    @OneToMany(mappedBy = "creditCard", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Transaction> transaction;
+
+    @OneToMany(mappedBy = "creditCard", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<RedemptionHistory> redemptionHistory = new ArrayList<>();
 }

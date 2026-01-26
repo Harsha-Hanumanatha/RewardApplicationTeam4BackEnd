@@ -37,19 +37,19 @@ public class CustomerAPI {
         return ResponseEntity.ok(history);
     }
 
-    @PostMapping("/customers/{customerId}/cards/{cardNumber}/redemptions")
-    public ResponseEntity<RedemptionResponse> redeemPoints(
-            @PathVariable Long customerId,
-            @PathVariable String cardNumber,
-            @RequestBody RedemptionRequest request) throws RewardException {
-
-        System.out.println("Processing Redemption for Card ID: " + cardNumber);
-
-        // Call the service to deduct points and save history
-        RedemptionResponse response = rewardService.redeemPoints(cardNumber, request);
-
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/customers/{customerId}/cards/{cardNumber}/redemptions")
+//    public ResponseEntity<RedemptionResponse> redeemPoints(
+//            @PathVariable Long customerId,
+//            @PathVariable String cardNumber,
+//            @RequestBody RedemptionRequest request) throws RewardException {
+//
+//        System.out.println("Processing Redemption for Card ID: " + cardNumber);
+//
+//        // Call the service to deduct points and save history
+//        RedemptionResponse response = rewardService.redeemPoints(cardNumber, request);
+//
+//        return ResponseEntity.ok(response);
+//    }
 
     @PostMapping("/add")
     public ResponseEntity<String> addCustomer(@RequestBody CustomerDTO customer) throws RewardException {
@@ -64,6 +64,12 @@ public class CustomerAPI {
         Integer customerId = customerService.deleteCustomer(custId);
         String msg = env.getProperty("API.Customer.Deleted.Successfully");
         return new ResponseEntity<>(msg + customerId, HttpStatus.OK);
+    }
+
+    @PutMapping("/activate/{custId}")
+    public ResponseEntity<String> activateCustomer(@PathVariable Integer custId) throws RewardException {
+        String response = customerService.activateCustomer(custId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{custId}")
@@ -89,7 +95,7 @@ public class CustomerAPI {
     //creditcard
     @PostMapping("/{customerId}/cards")
     public ResponseEntity<String> addCard(@PathVariable Integer customerId, @RequestBody CreditCardDTO cardDto) throws RewardException {
-        customerService.addCreditCardToCustomer(customerId, cardDto);
+        customerService.addCreditCard(customerId, cardDto);
         return new ResponseEntity<>("Card added successfully", HttpStatus.CREATED);
     }
 

@@ -2,7 +2,10 @@ package com.tcs.rewardapplicationsys.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,21 +16,28 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RedemptionHistory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    private Long id;
     private String orderId;
+
     @ElementCollection
     private List<String> itemsRedeemed;
+
     private Double pointsRedeemed;
+
+
+    @Column(columnDefinition = "DATETIME")
     private LocalDateTime redemptionDate;
+
     private String status;
+
     @ManyToOne
-    @JoinColumn(name = "card_id_fk", insertable = false, updatable = false)
+    @JoinColumn(name = "card_id_fk")
     @JsonIgnore
     private CreditCard creditCard;
-
 
     public RedemptionHistory(String orderId, List<String> itemNames, Double requiredPoints, LocalDateTime now, String success) {
         this.orderId = orderId;

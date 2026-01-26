@@ -6,4 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface CreditCardRepo extends JpaRepository<CreditCard,Integer> {
     CreditCard findByCardNumber(String cardNumber);
+    boolean existsByCardNumber(String cardNumber);
 }

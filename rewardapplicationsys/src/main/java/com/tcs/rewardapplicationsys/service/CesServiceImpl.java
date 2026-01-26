@@ -21,7 +21,7 @@ public class CesServiceImpl implements CesService {
     CesUserRepo userRepo;
 
     @Autowired
-    PasswordEncoder passwordEncoder; // Inject BCrypt encoder
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -31,13 +31,11 @@ public class CesServiceImpl implements CesService {
     public String login(String username, String rawPassword) throws RewardException {
         CesUser user = userRepo.findByUserName(username);
         if (user != null && passwordEncoder.matches(rawPassword, user.getPassword())) {
-            // Password matches! Generate Token
             return jwtUtils.generateToken(user.getUserName(), user.getRole().name());
         }
         throw new RewardException("Invalid Username or Password");
     }
 
-    // 2. Add User (Only Admin can call this via Controller)
     public void addCesUser(CesUserDTO dto) throws RewardException {
         if(userRepo.findByUserName(dto.getUserName()) != null) {
             throw new RewardException("Username already exists");
@@ -45,14 +43,12 @@ public class CesServiceImpl implements CesService {
 
         CesUser user = new CesUser();
         user.setUserName(dto.getUserName());
-        // ENCRYPT PASSWORD BEFORE SAVING
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRole(UserRole.CES_USER); // Default to Sub-User
+        user.setRole(UserRole.CES_USER);
 
         userRepo.save(user);
     }
 
-    // Inside CesServiceImpl class
     @Override
     public List<CesUser> getAllUsers() {
         return userRepo.findAll();

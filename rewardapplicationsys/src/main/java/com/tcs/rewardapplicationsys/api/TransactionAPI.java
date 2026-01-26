@@ -18,26 +18,19 @@ public class TransactionAPI {
     @Autowired
     TransactionService transactionService;
 
-    @GetMapping("/customers/{customerId}/cards/{cardNumber}/transactions")
-    public ResponseEntity<List<Transaction>> loadTransactions(
-            @PathVariable Long customerId,
-            @PathVariable String cardNumber) throws RewardException {
-
-        List<Transaction> transactions = transactionService.generateMockTransactionsForCard(cardNumber, 50);
+    @GetMapping("/cards/{cardNumber}/transactions")
+    public ResponseEntity<List<Transaction>> getTransactions(@PathVariable String cardNumber) {
+        List<Transaction> transactions = transactionService.getTransactionsByCard(cardNumber);
         return ResponseEntity.ok(transactions);
     }
 
-    @PostMapping("/customers/{customerId}/cards/{cardId}/transactions/process")
-    public ResponseEntity<Map<String, Object>> processTransactions(
-            @PathVariable Long customerId,
-            @PathVariable Long cardId,
-            @RequestBody List<String> transactionIds) {
+    // 2. PROCESS TRANSACTION (Cleaned up)
+    @PostMapping("/{cardNumber}/transactions/batch")
+    public ResponseEntity<Map<String, Object>> processBatch(
+            @PathVariable String cardNumber,
+            @RequestBody List<TransactionDTO> txnDtos) throws RewardException {
 
-        System.out.println("Processing " + transactionIds.size() + " txns for Card " + cardId);
-
-        // Delegate logic to service
-        Map<String, Object> result = transactionService.processTransactions(transactionIds);
-
-        return ResponseEntity.ok(result);
+        Map<String, Object> response = transactionService.processBatchTransactions(cardNumber, txnDtos);
+        return ResponseEntity.ok(response);
     }
 }

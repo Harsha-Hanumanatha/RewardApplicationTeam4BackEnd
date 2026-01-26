@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 @Transactional
@@ -22,9 +21,12 @@ import java.util.Optional;
 public class CustomerServiceImpl implements CustomerService {
     @Autowired
     CustomerRepo  customerRepo;
+    @Autowired
+    CreditCardRepo creditCardRepo;
+
     @Override
     public Integer addCustomer(CustomerDTO customer) throws RewardException {
-        // 1. Only check for existing customer if an ID is actually provided
+
         if (customer.getCustomerId() != null) {
             Optional<Customer> customer1 = customerRepo.findById(customer.getCustomerId());
             if (customer1.isPresent()) {
@@ -32,7 +34,6 @@ public class CustomerServiceImpl implements CustomerService {
             }
         }
 
-        // 2. Proceed with creating the new customer
         Customer cust = new Customer();
         cust.setDoj(customer.getDoj());
         cust.setFirstName(customer.getFirstName());
@@ -44,7 +45,7 @@ public class CustomerServiceImpl implements CustomerService {
         if(Validate.isValidEmail(customer.getEmail())){
             cust.setEmail(customer.getEmail());
         }
-        // 3. Logic for Premium/Regular status (Threshold: Dec 29, 2022)
+
         if (cust.getDoj() != null && cust.getDoj().isBefore(LocalDate.now().minusYears(3))) {
             cust.setCustomerType(CustomerType.PREMIUM);
         } else {
@@ -55,7 +56,6 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepo.save(cust);
         return cust.getCustomerId();
     }
-
 
     @Override
     public Integer deleteCustomer(Integer custId) throws RewardException {
@@ -104,29 +104,44 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Integer addCreditCardToCustomer(Integer customerId, CreditCardDTO cardDto) throws RewardException {
-        Customer customer=customerRepo.findById(customerId).orElseThrow(() -> new RewardException("Customer Not Found"));
-        CreditCard card=new CreditCard();
-        if(Validate.isValidCardNumber(cardDto.getCardNumber())){
-            card.setCardNumber( cardDto.getCardNumber());
+    public String addCreditCard(Integer customerId, CreditCardDTO cardDto) throws RewardException {
+
+        CreditCard existingCard = creditCardRepo.findByCardNumber(cardDto.getCardNumber());
+
+        if (existingCard != null) {
+            if (existingCard.getIsCardActive()) {
+                throw new RewardException("Duplicate Error: Card " + cardDto.getCardNumber() + " is already linked!");
+            }
+            else {
+                if (!existingCard.getCustomer().getCustomerId().equals(customerId)) {
+                    throw new RewardException("This card number belongs to a different customer history!");
+                }
+                existingCard.setIsCardActive(true);
+                creditCardRepo.save(existingCard);
+                return "Card Relinked/Restored Successfully";
+            }
         }
 
-        card.setRewardPoints(0.0);
-        card.setIsCardActive(true);
-//        card.setCustomer( customer );
-        customer.getCreditCard().add(card);
-        customerRepo.save(customer);
-        return customer.getCustomerId();
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new RewardException("Customer not found with ID: " + customerId));
 
+        CreditCard newCard = new CreditCard();
+        newCard.setCardNumber(cardDto.getCardNumber());
+        newCard.setIsCardActive(true);
+        newCard.setRewardPoints(0.0);
+        newCard.setCustomer(customer);
+
+        creditCardRepo.save(newCard);
+
+        return "Credit Card Linked Successfully";
     }
-    @Autowired
-    CreditCardRepo creditCardRepo;
+
+
     @Override
     public String deleteCreditCardFromCustomer(String creditCardNum) throws RewardException {
         Customer customer1=customerRepo.findByCreditCardCardNumber(creditCardNum);
             if(customer1==null){
                 throw new RewardException("There is no Customer with given card number");
-
             }
             else{
                CreditCard card=creditCardRepo.findByCardNumber(creditCardNum);
@@ -135,7 +150,21 @@ public class CustomerServiceImpl implements CustomerService {
             }
            return creditCardNum;
         }
+
+    @Override
+    public String activateCustomer(Integer custId) throws RewardException {
+        Customer customer = customerRepo.findById(custId)
+                .orElseThrow(() -> new RewardException("Customer not found"));
+
+        customer.setIsActive(true);
+        customerRepo.save(customer);
+
+        return "Customer Reactivated Successfully";
     }
+
+}
+
+
 
 
 

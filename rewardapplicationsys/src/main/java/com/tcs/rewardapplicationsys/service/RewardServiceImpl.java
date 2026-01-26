@@ -72,42 +72,4 @@ public RedemptionResponse redeemPoints(String cardNumber, RedemptionRequest requ
 
     return new RedemptionResponse("SUCCESS", orderId, requiredPoints, card.getRewardPoints());
 }
-
-
-//    @Override
-//    public RedemptionResponse redeemPoints(String cardNumber, RedemptionRequest request) throws RewardException {
-//        try {
-//            // 1. Fetch Card (now includes version)
-//            CreditCard card = creditCardRepository.findByCardNumber(cardNumber);
-//            if(card == null){
-//                throw new RewardException("Credit Card not found with ID: " + cardNumber);
-//            }
-//
-//            Double currentBalance = card.getRewardPoints() != null ? card.getRewardPoints() : 0.0;
-//            Double requiredPoints = request.getTotalPoints();
-//
-//            // 2. Logic Check
-//            if (currentBalance < requiredPoints) {
-//                throw new RewardException("Insufficient Balance!");
-//            }
-//
-//            // 3. Deduct Points
-//            card.setRewardPoints(currentBalance - requiredPoints);
-//
-//            // 4. Save Card
-//            creditCardRepository.save(card);
-//
-//            // 5. Generate History & Vouchers (Only happens if Step 4 succeeds)
-//            String orderId = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-//
-//            RedemptionHistory history = new RedemptionHistory(orderId, request.getItemNames(), requiredPoints, LocalDateTime.now(),"SUCCESS");
-//            redemptionHistoryRepository.save(history);
-//
-//            return new RedemptionResponse("SUCCESS", orderId, requiredPoints, card.getRewardPoints());
-//
-//        } catch (OptimisticLockingFailureException e) {
-//            // Handle the Race Condition gracefully
-//            throw new RewardException("Transaction conflict! Please try redeeming again.");
-//        }
-//    }
 }

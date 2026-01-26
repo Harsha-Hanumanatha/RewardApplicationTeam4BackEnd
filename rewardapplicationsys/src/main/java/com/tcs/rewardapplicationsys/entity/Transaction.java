@@ -1,10 +1,11 @@
 package com.tcs.rewardapplicationsys.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
-import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,15 +13,20 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "transaction_details")
 public class Transaction {
     @Id
     private String transactionId;
+
     private String item;
     private Double amount;
-    private LocalDateTime TransactionDate;
+
+    @Column(columnDefinition = "DATETIME")
+    private LocalDateTime transactionDate;
+
     private String status;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cardNumber")
-    @JsonIgnore
+
+    @ManyToOne
+    @JoinColumn(name = "card_id_fk")
     private CreditCard creditCard;
 }
