@@ -1,24 +1,32 @@
 package com.tcs.rewardapplicationsys.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
-
+import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "transaction_details")
 public class Transaction {
     @Id
     private String transactionId;
+
     private String item;
     private Double amount;
-    private LocalDateTime TransactionDate;
-    private Boolean isProcessed;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cardNumber")
+
+    @Column(columnDefinition = "DATETIME")
+    private LocalDateTime transactionDate;
+
+    private String status;
+
+    @ManyToOne
+    @JoinColumn(name = "card_id_fk")
     private CreditCard creditCard;
 }

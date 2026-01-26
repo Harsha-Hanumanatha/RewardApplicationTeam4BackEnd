@@ -14,6 +14,8 @@ public class CustomerDTO {
     private String firstName;
     private String lastName;
     private LocalDate doj;
+    private String email;
+    private Long phoneNum;
     private CreditCardDTO creditCard;
     private CustomerType customerType;
     private Boolean isActive;
